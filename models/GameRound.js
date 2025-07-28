@@ -6,6 +6,7 @@ const gameRoundSchema = new mongoose.Schema({
   seed: String,
   hash: String,
   startTime: Date,
+  multiplier: { type: Number, default: 1 }, // Ensure multiplier is defined
   bets: [
     {
       playerId: String,

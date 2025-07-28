@@ -131,16 +131,18 @@ POST	 /api/game/cashout	      Cash out before crash
 
 **WebSocket URL**: ws://localhost:5000
 
-**Event**	          **Direction**	            **Payload**
-round_start	    Server → Client	      { roundNumber, crashPoint, hash }
+**Event**	              **Direction**	                **Payload**
 
-multiplier_update	Server → Client	             { multiplier }
+round_start	           Server → Client	        { roundNumber, crashPoint, hash }
 
-crash	            Server → Client	               { crashPoint }
+multiplier_update	     Server → Client	             { multiplier }
 
-player_cashout	   Server → Client	           { playerId, multiplier }
+crash	                 Server → Client	               { crashPoint }
 
-cashout_request	 Client → Server	          { playerId, multiplier }
+player_cashout	        Server → Client	           { playerId, multiplier }
+
+cashout_request	      Client → Server	          { playerId, multiplier }
+
 
 Test using the provided client.html or any WebSocket client.
 

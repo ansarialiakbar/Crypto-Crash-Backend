@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
 const GameRound = require('../models/GameRound');
 const { generateCrashPoint, getSeedHash } = require('../utils/fairCrash');
 const { setCurrentRound, getCurrentRound } = require('../utils/currentRound');
 
 let roundNumber = 1;
-let isSaving = false; // Flag to prevent concurrent saves
+let isSaving = false;
 
 const setupGameSocket = (io) => {
   let interval;
@@ -26,7 +25,7 @@ const setupGameSocket = (io) => {
       });
 
       setCurrentRound(round);
-      console.log(`Round ${roundNumber} initialized with crashPoint ${crashPoint}, multiplier ${round.multiplier}`);
+      console.log(`Round ${roundNumber} initialized with crashPoint ${crashPoint}, multiplier 1`);
 
       io.emit('round_start', { roundNumber, crashPoint, hash });
 
@@ -42,7 +41,6 @@ const setupGameSocket = (io) => {
 
           const currentRound = getCurrentRound();
           if (currentRound && !isSaving) {
-            // Save multiplier to MongoDB every 1 second
             if (Date.now() - lastSaved >= 1000) {
               isSaving = true;
               currentRound.multiplier = multiplier;
@@ -51,8 +49,6 @@ const setupGameSocket = (io) => {
               isSaving = false;
               console.log(`Round ${roundNumber} multiplier updated to ${multiplier.toFixed(2)} in MongoDB`);
             }
-          } else if (!currentRound) {
-            console.error('currentRound is null during multiplier update');
           }
 
           io.emit('multiplier_update', { multiplier: multiplier.toFixed(2) });
@@ -66,7 +62,7 @@ const setupGameSocket = (io) => {
           }
         } catch (err) {
           console.error('Error in multiplier update interval:', err.message);
-          isSaving = false; // Reset flag on error
+          isSaving = false;
         }
       }, 100);
     } catch (err) {
@@ -75,14 +71,8 @@ const setupGameSocket = (io) => {
     }
   };
 
-  // Wait for MongoDB connection before starting the first round
-  mongoose.connection.once('open', () => {
-    console.log('MongoDB ready, starting first round');
-    startRound();
-  });
-  mongoose.connection.on('error', (err) => {
-    console.error('MongoDB connection error in gameSocket:', err.message);
-  });
+  // ✅ Start immediately (after DB already connected in server.js)
+  startRound();
 
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
